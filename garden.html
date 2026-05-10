@@ -19,12 +19,10 @@
 			}
 		</script>
 	</head>
-	<body>
-		<!-- A grey horizontal navbar that becomes vertical on small screens -->
+	<body style="height: 100vh; display: flex; flex-direction: column; overflow: hidden">
 		<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
 			<div class="container-fluid">
 				<a class="navbar-brand" href="index.html">3D Garden Web App</a>
-
 				<button
 					class="navbar-toggler"
 					type="button"
@@ -35,45 +33,40 @@
 				</button>
 				<div class="collapse navbar-collapse" id="collapsibleNavbar">
 					<ul class="navbar-nav">
-						<li class="nav-item">
-							<a class="nav-link" href="#">About</a>
-						</li>
+						<li class="nav-item"><a class="nav-link" href="#">About</a></li>
 					</ul>
 				</div>
 			</div>
 		</nav>
 
-		<div
-			id="scene-container"
-			style="
-				width: 800px;
-				height: 600px;
-				margin: 20px auto;
-				border: 3px solid #4a7c3f;
-				border-radius: 8px;
-				overflow: hidden;
-			"
-		></div>
+		<div class="container-fluid flex-grow-1 d-flex flex-column py-2" style="overflow: hidden">
+			<div
+				id="scene-container"
+				class="flex-grow-1 mx-auto w-100"
+				style="border: 3px solid #4a7c3f; border-radius: 8px; overflow: hidden"
+			></div>
 
-		<div
-			style="
-				width: 600px;
-				margin: 10px auto;
-				display: flex;
-				gap: 10px;
-				justify-content: center;
-			"
-		>
-			<button id="reset-btn" class="btn btn-success">Reset Camera</button>
-			<button id="time-btn" class="btn btn-success">Flip Time of Day</button>
-			<button id="water-btn" class="btn btn-success">Water Plant</button>
-			<button id="butterfly-btn" class="btn btn-success">Butterfly</button>
-		</div>
-
-		<div style="width: 200px; margin: 10px auto;">
-			<label style="color: green;">Water Level</label>
-			<div style="background: #333; border-radius: 8px; height: 16px; overflow: hidden;">
-				<div id="water-bar" style="background: #4488ff; height: 100%; width: 100%; transition: width 0.1s;"></div>
+			<div class="d-flex gap-2 justify-content-center align-items-center py-2">
+				<button id="reset-btn" class="btn btn-success btn-sm">Reset Camera</button>
+				<button id="time-btn" class="btn btn-success btn-sm">Flip Time</button>
+				<button id="water-btn" class="btn btn-success btn-sm">Water Plant</button>
+				<button id="wireframe-btn" class="btn btn-success btn-sm">Wireframe</button>
+				<div style="width: 150px">
+					<label style="color: green; font-size: 0.8rem">Water Level</label>
+					<div
+						style="background: #333; border-radius: 8px; height: 12px; overflow: hidden"
+					>
+						<div
+							id="water-bar"
+							style="
+								background: #4488ff;
+								height: 100%;
+								width: 100%;
+								transition: width 0.1s;
+							"
+						></div>
+					</div>
+				</div>
 			</div>
 		</div>
 

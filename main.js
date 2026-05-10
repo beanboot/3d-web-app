@@ -360,3 +360,15 @@ document.getElementById("water-btn").addEventListener("click", () => {
         }, 3000);
     }
 });
+
+let wireframe = false;
+
+// Wireframe
+document.getElementById("wireframe-btn").addEventListener("click", () => {
+    wireframe = !wireframe;
+    scene.traverse((node) => {
+        if (node.isMesh) {
+            node.material.wireframe = wireframe;
+        }
+    });
+});
