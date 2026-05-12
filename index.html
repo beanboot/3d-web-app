@@ -9,14 +9,30 @@
 			rel="stylesheet"
 		/>
 		<link rel="stylesheet" href="style.css" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Sniglet:wght@400;800&display=swap"
+			rel="stylesheet"
+		/>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-	</head>
-	<body>
-		<!-- A grey horizontal navbar that becomes vertical on small screens -->
-		<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-			<div class="container-fluid">
-				<a class="navbar-brand" href="index.html">3D Garden Web App</a>
 
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+					"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+				}
+			}
+		</script>
+	</head>
+	<body
+		class="sniglet-regular"
+		style="height: 100dvh; display: flex; flex-direction: column; overflow: hidden"
+	>
+		<nav class="navbar navbar-expand-sm navbar-dark">
+			<div class="container-fluid">
+				<a class="navbar-brand" href="#">3D Garden Web App</a>
 				<button
 					class="navbar-toggler"
 					type="button"
@@ -27,31 +43,73 @@
 				</button>
 				<div class="collapse navbar-collapse" id="collapsibleNavbar">
 					<ul class="navbar-nav">
-						<li class="nav-item">
-							<a class="nav-link" href="#">About</a>
-						</li>
+						<li class="nav-item"><a class="nav-link" href="#">About</a></li>
 					</ul>
 				</div>
 			</div>
 		</nav>
 
-		<div class="row">
-			<div class="col">
-				<div class="container-fluid">
-					<h1>Garden</h1>
-					<a href="garden.html">Link</a>
+		<div class="container-fluid flex-grow-1 d-flex flex-column py-2" style="overflow: hidden">
+			<div
+				id="scene-container"
+				class="flex-grow-1 mx-auto w-100"
+				style="border: 5px solid #338129; border-radius: 8px; overflow: hidden"
+			>
+				<div
+					id="load-overlay"
+					style="
+						position: absolute;
+						width: 100%;
+						height: 100%;
+						background: #1a2e1a;
+						display: flex;
+						flex-direction: column;
+						align-items: center;
+						justify-content: center;
+						gap: 20px;
+						z-index: 10;
+					"
+				>
+					<h2 style="color: #338129;">3D Garden</h2>
+					<button id="load-btn" class="btn btn-success">Load</button>
+					<div id="load-progress" style="display: none; width: 60%">
+						<div
+							style="
+								background: #333;
+								border-radius: 8px;
+								height: 12px;
+								overflow: hidden;
+							"
+						>
+							<div
+								id="load-bar"
+								style="
+									background: #4a7c3f;
+									height: 100%;
+									width: 0%;
+									transition: width 0.2s;
+								"
+							></div>
+						</div>
+						<p
+							id="load-text"
+							style="color: #4a7c3f; text-align: center; margin-top: 8px"
+						>
+							Loading...
+						</p>
+					</div>
 				</div>
 			</div>
-			<div class="col">
-				<div class="container-fluid">
-					<h1>Plant 2</h1>
-				</div>
-			</div>
-			<div class="col">
-				<div class="container-fluid">
-					<h1>Plant 3</h1>
-				</div>
+
+			<div class="d-flex gap-2 justify-content-center align-items-center py-2">
+				<button id="reset-btn" class="btn btn-success btn-sm">Reset Camera</button>
+				<button id="time-btn" class="btn btn-success btn-sm">Fast Forward Time</button>
+				<button id="water-btn" class="btn btn-success btn-sm">Water Plant</button>
+				<button id="wireframe-btn" class="btn btn-success btn-sm">Wireframe</button>
+				<button id="mute-btn" class="btn btn-success btn-sm">Mute</button>
 			</div>
 		</div>
+
+		<script type="module" src="main.js"></script>
 	</body>
 </html>

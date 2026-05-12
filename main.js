@@ -44,6 +44,7 @@ scene.add(floor);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
+// Sun and moon geometry
 const sun = new THREE.Mesh(
 	new THREE.SphereGeometry(2, 16, 16),
 	new THREE.MeshBasicMaterial({ color: 0xffdd00 }),
@@ -56,6 +57,7 @@ const moon = new THREE.Mesh(
 );
 scene.add(moon);
 
+// Sun and moon lights
 const sunLight = new THREE.DirectionalLight(0xffffff, 1);
 const moonLight = new THREE.DirectionalLight(0x90c9e8, 1);
 scene.add(sunLight);
@@ -89,11 +91,35 @@ moonLight.shadow.camera.top = 30;
 moonLight.shadow.camera.bottom = -30;
 moonLight.shadow.camera.updateProjectionMatrix();
 
+// Controls
 const controls = new OrbitControls(camera, renderer.domElement);
 
-let plantModel = null;
-let canModel = null;
+// Loading logic
+let loadedCount = 0;
+const totalAssets = 2;
+const loadBar = document.getElementById('load-bar');
+const loadText = document.getElementById('load-text');
 
+function onAssetLoaded() {
+    loadedCount++;
+    const percent = (loadedCount / totalAssets) * 100;
+    loadBar.style.width = percent + '%';
+    loadText.textContent = `Loading... ${Math.round(percent)}%`;
+
+    if (loadedCount === totalAssets) {
+        loadText.textContent = 'Ready!';
+    }
+}
+
+const buttons = ['reset-btn', 'time-btn', 'water-btn', 'wireframe-btn', 'mute-btn'];
+
+// Disable all buttons on load
+buttons.forEach(id => {
+    document.getElementById(id).disabled = true;
+});
+
+// Load plant model
+let plantModel = null;
 const loader = new GLTFLoader();
 loader.load(
 	"assets/plant1.glb",
@@ -111,6 +137,7 @@ loader.load(
 			}
 		});
 
+		onAssetLoaded();
 		console.log("Model loaded!");
 	},
 	(progress) => {
@@ -121,10 +148,11 @@ loader.load(
 	},
 );
 
+// Load watering can model (with animation)
+let canModel = null;
 let canMixer = null;
 let canAction = null;
 const clock = new THREE.Clock();
-
 loader.load(
 	"assets/watering_can.glb",
 	(gltf) => {
@@ -151,6 +179,7 @@ loader.load(
 			}
 		});
 
+		onAssetLoaded();
 		console.log("Model loaded!");
 	},
 	(progress) => {
@@ -162,7 +191,7 @@ loader.load(
 );
 
 // Sets camera and controls
-camera.position.set(0, 8, 12);
+camera.position.set(0, 4, 6);
 controls.target.set(0, 3, 0);
 
 // Prevents camera from going under floor and limits zoom
@@ -171,6 +200,15 @@ controls.minDistance = 5;
 controls.maxDistance = 14;
 controls.enablePan = false;
 controls.update();
+
+// Audio setup
+const bgAudio = new Audio('assets/ambient.mp3');
+bgAudio.loop = true;
+bgAudio.volume = 0.4;
+
+const waterAudio = new Audio('assets/water.mp3');
+waterAudio.volume = 0.6;
+waterAudio.playbackRate = 1.5;
 
 // Cloud logic
 function makeClouds(n, h, r) {
@@ -226,25 +264,14 @@ const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.3 });
 const stars = new THREE.Points(starGeometry, starMaterial);
 scene.add(stars);
 
-let waterLevel = 1.0; // 0 = dead, 1 = fully watered
-const waterBar = document.getElementById("water-bar");
+let waterLevel = 0; // 0 = dead, 1 = fully watered
 let lastWatered = 0;
 const waterCooldown = 3; // Seconds before draining resumes after watering
 let waterTimer = 0;
+let drainSpeed = 0.0003;
 
 function updateWater(delta) {
 	waterTimer += delta;
-
-	waterBar.style.width = waterLevel * 100 + "%";
-
-	// Change bar colour as it drains
-	if (waterLevel > 0.5) {
-		waterBar.style.background = "#4488ff";
-	} else if (waterLevel > 0.25) {
-		waterBar.style.background = "#ffaa00";
-	} else {
-		waterBar.style.background = "#ff4444";
-	}
 
 	// Scales plant based on water level
 	if (plantModel) {
@@ -275,11 +302,15 @@ function updateWater(delta) {
 	// Delay after watering plant before draining
     if (waterTimer - lastWatered < waterCooldown) return;
 
-	waterLevel = Math.max(0, waterLevel - 0.0005);
+	// Drains water level (normalized to 60fps)
+	waterLevel = Math.max(0, waterLevel - drainSpeed * delta * 60);
 }
 
+// Initiate angles and speed of time and clouds
 let cloudAngle = 0;
+let cloudSpeed = 0.0002;
 let dayAngle = Math.PI / 2.5;
+let daySpeed = 0.0005;
 
 function animate() {
 	requestAnimationFrame(animate);
@@ -288,8 +319,9 @@ function animate() {
 	const delta = clock.getDelta();
 	if (canMixer) canMixer.update(delta);
 
-	cloudAngle += 0.0002;
-	dayAngle += 0.0005;
+	// Controls movement of day/night cycle and clouds (normalized to 60fps)
+	dayAngle += daySpeed * delta * 60;
+	cloudAngle += cloudSpeed * delta * 60;
 
 	// Sun and moon on opposite sides of the same orbit
 	sun.position.x = Math.cos(dayAngle) * 60;
@@ -329,26 +361,67 @@ function animate() {
 }
 animate();
 
+// Load button
+document.getElementById('load-btn').addEventListener('click', () => {
+    document.getElementById('load-btn').style.display = 'none';
+    document.getElementById('load-progress').style.display = 'block';
+
+    const checkLoaded = setInterval(() => {
+        if (loadedCount === totalAssets) {
+            clearInterval(checkLoaded);
+            setTimeout(() => {
+                document.getElementById('load-overlay').style.display = 'none';
+                bgAudio.play();
+
+				// Enable all buttons
+                buttons.forEach(id => {
+                    document.getElementById(id).disabled = false;
+                });
+            }, 500);
+        }
+    }, 100);
+});
+
 // Reset button
 document.getElementById("reset-btn").addEventListener("click", () => {
-	camera.position.set(0, 8, 12);
+	camera.position.set(0, 4, 6);
 	controls.target.set(0, 3, 0);
 	controls.update();
 });
 
-// Flip time of day button
+// Fast forward time button
+let fastForward = false;
 document.getElementById("time-btn").addEventListener("click", () => {
-	dayAngle += Math.PI;
+	fastForward = !fastForward;
+
+	// 6x speed
+	if (fastForward) {
+		daySpeed = 0.003;
+		cloudSpeed = 0.0012;
+		drainSpeed = 0.0018;
+	} else {
+		daySpeed = 0.0005;
+		cloudSpeed = 0.0002;
+		drainSpeed = 0.0003;
+	}
+
+	document.getElementById('time-btn').textContent = fastForward ? 'Resume Normal Time' : 'Fast Forward Time';
 });
 
-let watering = false;
 
 // Water plant button
+let watering = false;
 document.getElementById("water-btn").addEventListener("click", () => {
 	if (canAction && !watering) {
 		// Play animation
         canAction.reset();
         canAction.play();
+
+		// Reset and play audio with delay
+		setTimeout(() => {
+			waterAudio.currentTime = 0;
+			waterAudio.play();
+		}, 500);
 
 		watering = true;
 
@@ -361,9 +434,10 @@ document.getElementById("water-btn").addEventListener("click", () => {
     }
 });
 
-let wireframe = false;
 
-// Wireframe
+
+// Wireframe button
+let wireframe = false;
 document.getElementById("wireframe-btn").addEventListener("click", () => {
     wireframe = !wireframe;
     scene.traverse((node) => {
@@ -371,4 +445,13 @@ document.getElementById("wireframe-btn").addEventListener("click", () => {
             node.material.wireframe = wireframe;
         }
     });
+});
+
+// Mute button
+let muted = false;
+document.getElementById('mute-btn').addEventListener('click', () => {
+    muted = !muted;
+    bgAudio.muted = muted;
+    waterAudio.muted = muted;
+    document.getElementById('mute-btn').textContent = muted ? 'Unmute' : 'Mute';
 });
