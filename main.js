@@ -405,7 +405,7 @@ document.getElementById("time-btn").addEventListener("click", () => {
 		drainSpeed = 0.0003;
 	}
 
-	document.getElementById('time-btn').textContent = fastForward ? 'Resume Normal Time' : 'Fast Forward Time';
+	document.getElementById('time-btn').textContent = fastForward ? 'Resume' : 'Fast Forward';
 });
 
 

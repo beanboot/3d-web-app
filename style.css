@@ -23,6 +23,12 @@ body, html {
     border-color: #338129 !important;
 }
 
+.card {
+	background-color: #338129;
+	border-color: #338129;
+	color: #ffffff;
+}
+
 .sniglet-regular {
   font-family: "Sniglet", system-ui;
   font-weight: 400;
